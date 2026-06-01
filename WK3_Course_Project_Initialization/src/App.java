@@ -1,127 +1,58 @@
 /**
  * Name: Jaymee Ronquillo
- * Date: May 27, 2026
- * Assignment: Course Project Week 3 - Library Book Management System
- * Description: Main class that runs the Library Book Management System.
+ * Date: June 1, 2026
+ * Assignment: Course Project Week 4 - SQLite Database Support
+ * Description: Main class using SQLite database CRUD operations.
  */
 
 import java.util.Scanner;
 
 public class App {
 
-    // Scanner object
     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
 
-        Library library = new Library();
+        System.out.println("Jaymee Ronquillo - Week 4 Database PA");
 
-        FileManager fileManager = new FileManager("libraryData.txt");
+        DatabaseManager.createTable();
 
-        // Load existing books
-        library.getBooks().addAll(fileManager.loadBooks());
+        BookDAO dao = new BookDAO();
 
-        int choice;
+        // Insert 4 books (only if you want duplicates, otherwise skip after first run)
+        dao.addBook(new Book("Book A", "Author A", "Fiction", 1, true));
+        dao.addBook(new Book("Book B", "Author B", "Sci-Fi", 2, true));
+        dao.addBook(new Book("Book C", "Author C", "Horror", 3, false));
+        dao.addBook(new Book("Book D", "Author D", "Mystery", 4, true));
 
-        do {
+        // READ ALL
+        System.out.println("\n--- All Books ---");
+        for (Book b : dao.getAllBooks()) {
+            System.out.println(b);
+        }
 
-            displayMenu();
+        // INVALID ID TEST
+        System.out.println("\n--- Invalid ID Lookup ---");
+        Book invalid = dao.getBookById(999);
+        System.out.println(invalid == null ? "No book found." : invalid);
 
-            choice = scanner.nextInt();
-            scanner.nextLine();
+        // UPDATE
+        System.out.println("\n--- Updating Book ID 1 ---");
+        Book update = dao.getBookById(1);
+        if (update != null) {
+            update.setAvailable(false);
+            dao.updateBook(update);
+            System.out.println(dao.getBookById(1));
+        }
 
-            switch (choice) {
+        // DELETE
+        System.out.println("\n--- Deleting Book ID 2 ---");
+        dao.deleteBook(2);
 
-                case 1:
-
-                    System.out.print("Enter Book Title: ");
-                    String title = scanner.nextLine();
-
-                    System.out.print("Enter Author Name: ");
-                    String author = scanner.nextLine();
-
-                    System.out.print("Enter Genre: ");
-                    String genre = scanner.nextLine();
-
-                    System.out.print("Enter Book ID: ");
-                    int id = scanner.nextInt();
-                    scanner.nextLine();
-
-                    Book newBook = new Book(title, author, genre, id, true);
-
-                    library.addBook(newBook);
-
-                    break;
-
-                case 2:
-
-                    System.out.print("Enter Book ID to Remove: ");
-                    int removeID = scanner.nextInt();
-
-                    library.removeBook(removeID);
-
-                    break;
-
-                case 3:
-
-                    System.out.print("Enter Keyword to Search: ");
-                    String keyword = scanner.nextLine();
-
-                    library.searchBook(keyword);
-
-                    break;
-
-                case 4:
-
-                    library.displayBooks();
-
-                    break;
-
-                case 5:
-
-                    library.displayAvailableBooks();
-
-                    break;
-
-                case 6:
-
-                    System.out.print("Enter Book ID: ");
-                    int updateID = scanner.nextInt();
-
-                    System.out.print("Enter Status (true = available, false = checked out): ");
-                    boolean status = scanner.nextBoolean();
-
-                    library.updateBookStatus(updateID, status);
-
-                    break;
-
-                case 7:
-
-                    fileManager.saveBooks(library.getBooks());
-
-                    System.out.println("Exiting program...");
-
-                    break;
-
-                default:
-
-                    System.out.println("Invalid option.\n");
-            }
-
-        } while (choice != 7);
-    }
-
-    // Display menu
-    public static void displayMenu() {
-
-        System.out.println("===== Library Book Management System =====");
-        System.out.println("1. Add Book");
-        System.out.println("2. Remove Book");
-        System.out.println("3. Search Book");
-        System.out.println("4. Display All Books");
-        System.out.println("5. Display Available Books");
-        System.out.println("6. Update Book Status");
-        System.out.println("7. Save and Exit");
-        System.out.print("Enter your choice: ");
+        // FINAL LIST
+        System.out.println("\n--- After Deletion ---");
+        for (Book b : dao.getAllBooks()) {
+            System.out.println(b);
+        }
     }
 }
